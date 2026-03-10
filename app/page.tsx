@@ -27,6 +27,15 @@ const newsItems = [
   "Research updates and institutional news from Accra and across our network.",
 ];
 
+const teamMembers = [
+  { name: "Adams Bodomo", image: "/ascir/adams-bodomo.png" },
+  { name: "Arhin Acheampong", image: "/ascir/arhin-acheampong.png" },
+  { name: "Dorothy Osei", image: "/ascir/dorothy-osei.png" },
+  { name: "Gigi Ngcobo", image: "/ascir/gigi-ngcobo.png" },
+  { name: "Hayford Yeboah", image: "/ascir/hayford-yeboah.png" },
+  { name: "Pamela Carslake", image: "/ascir/pamela-carslake.png" },
+];
+
 const featuredArticle: ArticleBlockData = {
   category: "Latest publication",
   title: "China-Africa relations in focus",
@@ -267,11 +276,25 @@ export default function Home() {
         </section>
 
         <section className="team-row" id="team" aria-labelledby="team-heading">
-          <div>
+          <div className="team-copy">
             <p className="eyebrow">Team</p>
             <h2 id="team-heading">Meet the scholars and practitioners behind ASCIR.</h2>
+            <a href="#contact">View team and network</a>
           </div>
-          <a href="#contact">View team and network</a>
+
+          <ul className="team-bubbles" aria-label="ASCIR team">
+            {teamMembers.map((member) => (
+              <li className="team-bubble" key={member.name}>
+                <Image
+                  src={member.image}
+                  alt={member.name}
+                  width={120}
+                  height={120}
+                  sizes="(max-width: 700px) 82px, 120px"
+                />
+              </li>
+            ))}
+          </ul>
         </section>
 
         <footer className="site-footer" id="contact">
