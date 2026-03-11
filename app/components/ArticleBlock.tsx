@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export type ArticleBlockData = {
   title: string;
-  summary: string;
+  excerpt: string;
   category?: string;
   label?: string;
   slug?: string;
@@ -27,7 +27,7 @@ type NormalizedArticle = {
     alt: string;
   };
   title: string;
-  summary: string;
+  excerpt: string;
 };
 
 function resolveHref(article: ArticleBlockData): string {
@@ -50,7 +50,7 @@ function normalizeArticle(article: ArticleBlockData): NormalizedArticle {
     ctaLabel: article.ctaLabel ?? article.cta ?? "Read the latest article",
     image: article.image,
     title: article.title,
-    summary: article.summary,
+    excerpt: article.excerpt,
   };
 }
 
@@ -111,7 +111,7 @@ export function ArticleBlock({
         ) : (
           <h3>{normalized.title}</h3>
         )}
-        <p>{normalized.summary}</p>
+        <p>{normalized.excerpt}</p>
         <a href={normalized.href}>{normalized.ctaLabel}</a>
       </div>
     </article>

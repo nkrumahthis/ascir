@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArticleBlock, type ArticleBlockData } from "./components/ArticleBlock";
 import { RecentArticlesSlider } from "./components/RecentArticlesSlider";
+import type { Member } from "../lib/types";
 
 const services = [
   {
@@ -27,7 +28,7 @@ const newsItems = [
   "Research updates and institutional news from Accra and across our network.",
 ];
 
-const teamMembers = [
+const teamMembers: Pick<Member, "name" | "image">[] = [
   { name: "Adams Bodomo", image: "/ascir/adams-bodomo.png" },
   { name: "Arhin Acheampong", image: "/ascir/arhin-acheampong.png" },
   { name: "Dorothy Osei", image: "/ascir/dorothy-osei.png" },
@@ -39,7 +40,7 @@ const teamMembers = [
 const featuredArticle: ArticleBlockData = {
   category: "Latest publication",
   title: "China-Africa relations in focus",
-  summary:
+  excerpt:
     "A featured slot for ASCIR's newest publication, policy brief, or research output.",
   slug: "china-africa-relations-in-focus",
   publishedAt: "2026-02-24",
@@ -50,7 +51,7 @@ const recentArticles: ArticleBlockData[] = [
   {
     category: "Article",
     title: "China's industrial policy signals and Africa's response",
-    summary:
+    excerpt:
       "How current Chinese policy language should inform African industrial planning priorities.",
     slug: "industrial-policy-signals-africa-response",
     publishedAt: "2026-03-04",
@@ -62,7 +63,7 @@ const recentArticles: ArticleBlockData[] = [
   {
     category: "Blog",
     title: "Training, mobility, and lived realities of engagement",
-    summary:
+    excerpt:
       "A short analysis of education exchange, skills mobility, and institutional influence.",
     slug: "training-mobility-lived-realities",
     publishedAt: "2026-03-01",
@@ -74,7 +75,7 @@ const recentArticles: ArticleBlockData[] = [
   {
     category: "News",
     title: "ASCIR convenes an Accra discussion on public narratives",
-    summary:
+    excerpt:
       "Highlights from a public conversation on media framing and strategic communication.",
     slug: "accra-discussion-public-narratives",
     publishedAt: "2026-02-26",
@@ -86,7 +87,7 @@ const recentArticles: ArticleBlockData[] = [
   {
     category: "Policy Brief",
     title: "Debt, leverage, and the politics of negotiation",
-    summary:
+    excerpt:
       "A concise brief on state bargaining power in current infrastructure negotiations.",
     slug: "debt-leverage-politics-of-negotiation",
     publishedAt: "2026-02-21",
@@ -98,7 +99,7 @@ const recentArticles: ArticleBlockData[] = [
   {
     category: "Article",
     title: "Critical minerals and the next phase of competition",
-    summary:
+    excerpt:
       "Resource politics, industrial transition, and why mineral strategy now matters.",
     slug: "critical-minerals-next-phase",
     publishedAt: "2026-02-17",
@@ -106,7 +107,7 @@ const recentArticles: ArticleBlockData[] = [
   {
     category: "Blog",
     title: "Ports, corridors, and regional power",
-    summary:
+    excerpt:
       "Why infrastructure visibility and logistics geography continue to shape diplomacy.",
     slug: "ports-corridors-regional-power",
     publishedAt: "2026-02-12",
@@ -114,7 +115,7 @@ const recentArticles: ArticleBlockData[] = [
   {
     category: "News",
     title: "ASCIR expands collaboration across universities",
-    summary:
+    excerpt:
       "An institutional update on joint research links spanning Africa, Europe, and Asia.",
     slug: "expands-collaboration-across-universities",
     publishedAt: "2026-02-09",
@@ -122,7 +123,7 @@ const recentArticles: ArticleBlockData[] = [
   {
     category: "White Paper",
     title: "South-South cooperation beyond rhetoric",
-    summary:
+    excerpt:
       "What practical institutional cooperation can look like in policy and research practice.",
     slug: "south-south-cooperation-beyond-rhetoric",
     publishedAt: "2026-02-02",
@@ -130,7 +131,7 @@ const recentArticles: ArticleBlockData[] = [
   {
     category: "Research Note",
     title: "Health, migration, and security as cross-cutting issues",
-    summary:
+    excerpt:
       "A synthesis on themes connecting multiple dimensions of Africa-China engagement.",
     slug: "health-migration-security-cross-cutting",
     publishedAt: "2026-01-30",
@@ -138,7 +139,7 @@ const recentArticles: ArticleBlockData[] = [
   {
     category: "Article",
     title: "Why public understanding still lags behind policy reality",
-    summary:
+    excerpt:
       "A note on public misconceptions and the need for grounded interpretation.",
     href: "#news",
     publishedAt: "2026-01-24",
@@ -283,7 +284,7 @@ export default function Home() {
           </div>
 
           <ul className="team-bubbles" aria-label="ASCIR team">
-            {teamMembers.map((member) => (
+            {teamMembers.map((member) => member.image && (
               <li className="team-bubble" key={member.name}>
                 <Image
                   src={member.image}
