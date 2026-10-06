@@ -1,8 +1,21 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, signUp } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function SignInForm() {
   const router = useRouter();
@@ -10,6 +23,7 @@ function SignInForm() {
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const isSignIn = mode === "sign-in";
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,13 +33,12 @@ function SignInForm() {
     const email = String(form.get("email"));
     const password = String(form.get("password"));
 
-    const { error } =
-      mode === "sign-in"
-        ? await signIn.email({ email, password })
-        : await signUp.email({ email, password, name: String(form.get("name")) });
+    const { error } = isSignIn
+      ? await signIn.email({ email, password })
+      : await signUp.email({ email, password, name: String(form.get("name")) });
 
-    setPending(false);
     if (error) {
+      setPending(false);
       setError(error.message ?? "Something went wrong");
       return;
     }
@@ -34,35 +47,78 @@ function SignInForm() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-4">
-      <h1 className="mb-6 text-2xl font-semibold">
-        {mode === "sign-in" ? "Sign in" : "Create an account"}
-      </h1>
-      <form onSubmit={onSubmit} className="flex flex-col gap-3">
-        {mode === "sign-up" && (
-          <input name="name" placeholder="Name" required className="rounded border px-3 py-2" />
-        )}
-        <input name="email" type="email" placeholder="Email" required className="rounded border px-3 py-2" />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          minLength={8}
-          required
-          className="rounded border px-3 py-2"
-        />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button disabled={pending} className="rounded bg-black px-3 py-2 text-white disabled:opacity-50">
-          {pending ? "…" : mode === "sign-in" ? "Sign in" : "Sign up"}
-        </button>
-      </form>
-      <button
-        type="button"
-        onClick={() => setMode(mode === "sign-in" ? "sign-up" : "sign-in")}
-        className="mt-4 text-sm underline"
-      >
-        {mode === "sign-in" ? "Need an account? Sign up" : "Have an account? Sign in"}
-      </button>
+    <main className="flex min-h-screen flex-col items-center justify-center gap-8 px-4 py-12">
+      <Link href="/" aria-label="ASCIR home">
+        <Image src="/ascir/logo.png" alt="ASCIR logo" width={150} height={78} priority />
+      </Link>
+
+      <Card className="w-full max-w-sm [--card-spacing:--spacing(6)]">
+        <CardHeader>
+          <CardTitle className="font-heading text-2xl">
+            {isSignIn ? "Welcome back" : "Create an account"}
+          </CardTitle>
+          <CardDescription>
+            {isSignIn
+              ? "Sign in to your ASCIR dashboard."
+              : "Join ASCIR to manage your submissions."}
+          </CardDescription>
+        </CardHeader>
+
+        <form onSubmit={onSubmit} className="contents">
+          <CardContent className="flex flex-col gap-4">
+            {!isSignIn && (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" name="name" autoComplete="name" required />
+              </div>
+            )}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete={isSignIn ? "current-password" : "new-password"}
+                minLength={8}
+                required
+              />
+            </div>
+            {error && (
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
+            )}
+          </CardContent>
+
+          <CardFooter className="flex flex-col gap-2">
+            <Button type="submit" size="lg" className="w-full" disabled={pending}>
+              {pending ? "Please wait…" : isSignIn ? "Sign in" : "Create account"}
+            </Button>
+            <Button
+              type="button"
+              variant="link"
+              className="w-full"
+              onClick={() => {
+                setError(null);
+                setMode(isSignIn ? "sign-up" : "sign-in");
+              }}
+            >
+              {isSignIn ? "Need an account? Sign up" : "Have an account? Sign in"}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </main>
   );
 }
