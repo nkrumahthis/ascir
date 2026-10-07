@@ -1,24 +1,36 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { LayoutDashboard } from "lucide-react";
 import { auth } from "@/lib/auth";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/sign-in");
 
-  async function signOutAction() {
-    "use server";
-    await auth.api.signOut({ headers: await headers() });
-    redirect("/");
-  }
-
   return (
-    <main className="mx-auto max-w-2xl px-4 py-16">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
-      <p className="mt-2">Signed in as {session.user.email}</p>
-      <form action={signOutAction} className="mt-6">
-        <button className="rounded border px-3 py-2">Sign out</button>
-      </form>
+    <main className="flex flex-1 flex-col gap-6 p-4 md:p-6">
+      <h1 className="font-heading text-3xl font-semibold tracking-tight">
+        Welcome, {session.user.name || "there"}
+      </h1>
+
+      <Empty className="flex-1 rounded-xl border border-dashed border-border bg-card">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <LayoutDashboard />
+          </EmptyMedia>
+          <EmptyTitle>Nothing here yet</EmptyTitle>
+          <EmptyDescription>
+            Your dashboard is empty for now. New tools will show up here.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     </main>
   );
 }
