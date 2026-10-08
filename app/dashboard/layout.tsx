@@ -11,7 +11,7 @@ export default async function DashboardLayout({
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/sign-in");
 
-  const { name, email, image } = session.user;
+  const { id, role, name, email, image } = session.user;
 
-  return <AppShell user={{ name, email, image }}>{children}</AppShell>;
+  return <AppShell user={{ id, role, name, email, image }}>{children}</AppShell>;
 }
