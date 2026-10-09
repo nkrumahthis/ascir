@@ -217,3 +217,129 @@ describe("saveWithRevision", { timeout: 20_000 }, () => {
     });
   });
 });
+
+describe("listRevisions and getRevision", { timeout: 20_000 }, () => {
+  it("lists one record's revisions newest first, without snapshots", async () => {
+    const note = await createNote();
+    const other = await createNote();
+    await service.saveWithRevision(
+      "post",
+      note.id,
+      1,
+      { title: "First" },
+      editor,
+    );
+    await service.saveWithRevision(
+      "post",
+      other.id,
+      1,
+      { title: "Other" },
+      editor,
+    );
+    await service.saveWithRevision(
+      "post",
+      note.id,
+      2,
+      { title: "Second" },
+      { ...editor, note: "Fixed the title" },
+    );
+
+    const list = await service.listRevisions("post", note.id);
+
+    expect(list.map((r) => [r.version, r.note, r.createdBy])).toEqual([
+      [3, "Fixed the title", "user-editor"],
+      [2, null, "user-editor"],
+    ]);
+    expect(list[0]).not.toHaveProperty("snapshot");
+    const stored = await service.getRevision(list[1].id);
+    expect(stored?.snapshot).toMatchObject({
+      id: note.id,
+      title: "First",
+      version: 2,
+    });
+  });
+});
+
+describe("restoreRevision", { timeout: 20_000 }, () => {
+  it("restores the first version as a new revision", async () => {
+    const note = await createNote();
+    const first = await service.saveWithRevision(
+      "post",
+      note.id,
+      1,
+      { title: "First", publishedAt: new Date("2025-05-01T09:00:00Z") },
+      editor,
+    );
+    await service.saveWithRevision(
+      "post",
+      note.id,
+      2,
+      { title: "Second", publishedAt: null },
+      editor,
+    );
+    if (!first.ok) throw new Error("first save failed");
+
+    const restored = await service.restoreRevision(
+      first.value.revision.id,
+      3,
+      editor,
+    );
+
+    expect(restored.ok).toBe(true);
+    expect(await currentNote(note.id)).toEqual({
+      id: note.id,
+      title: "First",
+      publishedAt: new Date("2025-05-01T09:00:00Z"),
+      version: 4,
+    });
+    const list = await service.listRevisions("post", note.id);
+    expect(list.map((r) => [r.version, r.note])).toEqual([
+      [4, "Restored version 2"],
+      [3, null],
+      [2, null],
+    ]);
+  });
+
+  it("refuses a restore based on an old version", async () => {
+    const note = await createNote();
+    const first = await service.saveWithRevision(
+      "post",
+      note.id,
+      1,
+      { title: "First" },
+      editor,
+    );
+    await service.saveWithRevision(
+      "post",
+      note.id,
+      2,
+      { title: "Second" },
+      editor,
+    );
+    if (!first.ok) throw new Error("first save failed");
+
+    const result = await service.restoreRevision(
+      first.value.revision.id,
+      2,
+      editor,
+    );
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { code: "stale", currentVersion: 3 },
+    });
+    expect(await currentNote(note.id)).toMatchObject({ title: "Second" });
+  });
+
+  it("reports a missing revision", async () => {
+    const result = await service.restoreRevision(
+      "00000000-0000-0000-0000-000000000000",
+      1,
+      editor,
+    );
+    expect(result).toMatchObject({ ok: false, error: { code: "not_found" } });
+    expect(
+      await service.getRevision("00000000-0000-0000-0000-000000000000"),
+    ).toBeNull();
+  });
+});
