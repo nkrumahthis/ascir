@@ -1,5 +1,7 @@
 import {
+  boolean,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   primaryKey,
@@ -64,4 +66,24 @@ export const postTags = pgTable(
   },
   (t) => [primaryKey({ columns: [t.postId, t.tagId] })],
 );
+export const ingestRunStatus = pgEnum("ingest_run_status", [
+  "running",
+  "completed",
+  "failed",
+]);
+
+// One row per ETL run that pushes ascir.org content in through /api/ingest.
+export const ingestRuns = pgTable("ingest_run", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  target: text("target").notNull(),
+  dryRun: boolean("dry_run").notNull().default(false),
+  startedAt: timestamp("started_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  finishedAt: timestamp("finished_at", { withTimezone: true }),
+  status: ingestRunStatus("status").notNull().default("running"),
+  counts: jsonb("counts").$type<Record<string, number>>().notNull().default({}),
+  report: jsonb("report"),
+});
+
 export * from "./auth-schema";

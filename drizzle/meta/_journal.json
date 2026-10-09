@@ -15,6 +15,20 @@
       "when": 1791462476146,
       "tag": "0001_user_role",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791545945864,
+      "tag": "0002_content_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791545946325,
+      "tag": "0003_ingest_run",
+      "breakpoints": true
     }
   ]
 }

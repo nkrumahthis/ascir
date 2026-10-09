@@ -1,5 +1,6 @@
 // Finds server actions and route handlers that never call can().
 // Used by auth/find-unguarded.test.ts so the suite fails when one slips in.
+// Route handlers wrapped in a GUARD_WRAPPERS call count as guarded.
 
 import ts from "typescript";
 
@@ -14,6 +15,18 @@ const HTTP_METHODS = new Set([
   "DELETE",
   "OPTIONS",
 ]);
+
+// Wrappers that authenticate the request themselves (no user, so no can()).
+const GUARD_WRAPPERS = new Set(["withIngest"]);
+
+function isGuardWrapperCall(node: ts.Node | undefined) {
+  return (
+    !!node &&
+    ts.isCallExpression(node) &&
+    ts.isIdentifier(node.expression) &&
+    GUARD_WRAPPERS.has(node.expression.text)
+  );
+}
 
 type FunctionNode =
   ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction;
@@ -69,6 +82,7 @@ function isExported(node: ts.Node) {
 function collectTopLevel(source: ts.SourceFile) {
   const locals = new Map<string, FunctionNode>();
   const exported = new Map<string, string>(); // exported name -> local name
+  const wrapped = new Set<string>(); // locals built by a guard wrapper
 
   for (const statement of source.statements) {
     if (ts.isFunctionDeclaration(statement) && statement.name) {
@@ -91,6 +105,12 @@ function collectTopLevel(source: ts.SourceFile) {
           locals.set(decl.name.text, decl.initializer);
           if (isExported(statement))
             exported.set(decl.name.text, decl.name.text);
+        } else if (ts.isIdentifier(decl.name)) {
+          // Anything else (e.g. a factory call) is unguarded unless it's a
+          // guard wrapper, since we can't see inside it.
+          if (isGuardWrapperCall(decl.initializer)) wrapped.add(decl.name.text);
+          if (isExported(statement))
+            exported.set(decl.name.text, decl.name.text);
         }
       }
     } else if (
@@ -110,7 +130,7 @@ function collectTopLevel(source: ts.SourceFile) {
       exported.set("default", "default");
     }
   }
-  return { locals, exported };
+  return { locals, exported, wrapped };
 }
 
 export function findUnguarded(file: string, code: string): Unguarded[] {
@@ -126,7 +146,7 @@ export function findUnguarded(file: string, code: string): Unguarded[] {
     if (!fn || !callsCan(fn)) found.push({ file, name });
   };
 
-  const { locals, exported } = collectTopLevel(source);
+  const { locals, exported, wrapped } = collectTopLevel(source);
   const isRoute = /(^|[\/])route\.(ts|tsx|js)$/.test(file);
 
   // A "use server" file: every export is a server action.
@@ -137,7 +157,9 @@ export function findUnguarded(file: string, code: string): Unguarded[] {
   // A route handler: every exported HTTP method.
   if (isRoute) {
     for (const [name, local] of exported) {
-      if (HTTP_METHODS.has(name)) report(name, locals.get(local));
+      if (HTTP_METHODS.has(name) && !wrapped.has(local)) {
+        report(name, locals.get(local));
+      }
     }
   }
 
