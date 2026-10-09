@@ -1,12 +1,13 @@
-// Entry point: tsx etl/cli.ts <all|extract|transform> [flags].
+// Entry point: tsx etl/cli.ts <all|extract|transform|push> [flags].
 // npm run etl runs every step in order and stops at the first failure.
 
 import { extract, writeRaw } from "@/etl/extract";
 import { parseFlags, type Flags } from "@/etl/flags";
+import { askInTerminal, confirmTarget, runPush } from "@/etl/push-step";
 import { selectRecords } from "@/etl/registry";
 import { readRaw, runTransforms, writeDumps } from "@/etl/transform";
 
-const STEPS = ["all", "extract", "transform"] as const;
+const STEPS = ["all", "extract", "transform", "push"] as const;
 type Step = (typeof STEPS)[number];
 
 async function runExtract() {
@@ -38,8 +39,13 @@ async function runTransform(flags: Flags) {
 async function run(step: Step, flags: Flags) {
   if (step === "extract") return runExtract();
   if (step === "transform") return runTransform(flags);
-  if (!flags.cached) await runExtract();
-  await runTransform(flags);
+  // Check the target before any work, so a typo fails fast.
+  const target = await confirmTarget(flags, askInTerminal);
+  if (step === "all") {
+    if (!flags.cached) await runExtract();
+    await runTransform(flags);
+  }
+  await runPush(flags, target);
 }
 
 async function main() {

@@ -15,6 +15,7 @@
     "etl": "tsx etl/cli.ts all",
     "etl:extract": "tsx etl/cli.ts extract",
     "etl:transform": "tsx etl/cli.ts transform",
+    "etl:push": "tsx etl/cli.ts push",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
