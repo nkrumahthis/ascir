@@ -1,7 +1,7 @@
-// Saves records with edit history: every save writes a revision, and a
-// save based on an old version is refused.
+// Saves records with edit history: every save writes a revision, a save
+// based on an old version is refused, and restoring adds a new revision.
 
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import type {
   PgColumn,
   PgDatabase,
@@ -9,6 +9,7 @@ import type {
   PgTable,
 } from "drizzle-orm/pg-core";
 import { revisions, type EntityType } from "@/lib/db/revision-schema";
+import { snapshotToValues } from "@/lib/revisions/snapshot";
 
 // A table that keeps history needs an id and a version column.
 export type VersionedTable = PgTable & { id: PgColumn; version: PgColumn };
@@ -72,7 +73,61 @@ export function createRevisionService(
     });
   }
 
-  return { saveWithRevision };
+  // Newest first. The snapshot is left out; fetch one with getRevision.
+  async function listRevisions(entityType: EntityType, entityId: string) {
+    return db
+      .select({
+        id: revisions.id,
+        // The version lives inside the snapshot; read it without loading it.
+        version: sql<number>`(${revisions.snapshot}->>'version')::int`,
+        note: revisions.note,
+        createdBy: revisions.createdBy,
+        createdAt: revisions.createdAt,
+      })
+      .from(revisions)
+      .where(
+        and(
+          eq(revisions.entityType, entityType),
+          eq(revisions.entityId, entityId),
+        ),
+      )
+      .orderBy(desc(revisions.createdAt));
+  }
+
+  async function getRevision(id: string): Promise<Revision | null> {
+    const [revision] = await db
+      .select()
+      .from(revisions)
+      .where(eq(revisions.id, id));
+    return revision ?? null;
+  }
+
+  // Saves the old snapshot as a new version, so history is never rewritten.
+  async function restoreRevision(
+    revisionId: string,
+    expectedVersion: number,
+    options: Omit<SaveOptions, "note">,
+  ): Promise<SaveResult> {
+    const revision = await getRevision(revisionId);
+    if (!revision) {
+      return {
+        ok: false,
+        error: { code: "not_found", message: "That revision does not exist." },
+      };
+    }
+    const table = tables[revision.entityType];
+    if (!table) return notRegistered(revision.entityType);
+
+    return saveWithRevision(
+      revision.entityType,
+      revision.entityId,
+      expectedVersion,
+      snapshotToValues(table, revision.snapshot),
+      { ...options, note: `Restored version ${revision.snapshot.version}` },
+    );
+  }
+
+  return { saveWithRevision, listRevisions, getRevision, restoreRevision };
 }
 
 export type RevisionService = ReturnType<typeof createRevisionService>;
