@@ -13,7 +13,7 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 // Relative import: drizzle-kit does not resolve the @/ alias.
-import { DEFAULT_ROLE, ROLES } from "../auth/can";
+import { DEFAULT_ROLE, ROLES } from "../../auth/can";
 
 const createdAt = () =>
   timestamp({ withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull();
