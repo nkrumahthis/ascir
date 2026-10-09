@@ -87,3 +87,4 @@ export const ingestRuns = pgTable("ingest_run", {
 });
 
 export * from "./auth-schema";
+export * from "./revision-schema";
