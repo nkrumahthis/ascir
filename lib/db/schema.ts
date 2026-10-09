@@ -62,3 +62,4 @@ export const postTags = pgTable(
   },
   (t) => [primaryKey({ columns: [t.postId, t.tagId] })],
 );
+export * from "./auth-schema";
