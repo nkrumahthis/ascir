@@ -16,9 +16,7 @@ const HTTP_METHODS = new Set([
 ]);
 
 type FunctionNode =
-  | ts.FunctionDeclaration
-  | ts.FunctionExpression
-  | ts.ArrowFunction;
+  ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction;
 
 function isFunctionNode(node: ts.Node | undefined): node is FunctionNode {
   return (
@@ -63,9 +61,7 @@ function callsCan(fn: FunctionNode) {
 function isExported(node: ts.Node) {
   return (
     ts.canHaveModifiers(node) &&
-    !!ts
-      .getModifiers(node)
-      ?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)
+    !!ts.getModifiers(node)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)
   );
 }
 
@@ -81,7 +77,10 @@ function collectTopLevel(source: ts.SourceFile) {
         const isDefault = ts
           .getModifiers(statement)
           ?.some((m) => m.kind === ts.SyntaxKind.DefaultKeyword);
-        exported.set(isDefault ? "default" : statement.name.text, statement.name.text);
+        exported.set(
+          isDefault ? "default" : statement.name.text,
+          statement.name.text,
+        );
       }
     } else if (ts.isFunctionDeclaration(statement) && isExported(statement)) {
       locals.set("default", statement);
@@ -90,7 +89,8 @@ function collectTopLevel(source: ts.SourceFile) {
       for (const decl of statement.declarationList.declarations) {
         if (ts.isIdentifier(decl.name) && isFunctionNode(decl.initializer)) {
           locals.set(decl.name.text, decl.initializer);
-          if (isExported(statement)) exported.set(decl.name.text, decl.name.text);
+          if (isExported(statement))
+            exported.set(decl.name.text, decl.name.text);
         }
       }
     } else if (
