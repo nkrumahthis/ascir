@@ -35,9 +35,14 @@ export function parseCompleteRun(body: unknown): Parsed<CompleteRun> {
   const { counts, report = null, status = "completed" } = body;
   if (
     !isObject(counts) ||
-    !Object.values(counts).every((n) => Number.isInteger(n) && (n as number) >= 0)
+    !Object.values(counts).every(
+      (n) => Number.isInteger(n) && (n as number) >= 0,
+    )
   ) {
-    return { ok: false, error: "counts must map names to non-negative integers" };
+    return {
+      ok: false,
+      error: "counts must map names to non-negative integers",
+    };
   }
   if (status !== "completed" && status !== "failed") {
     return { ok: false, error: 'status must be "completed" or "failed"' };

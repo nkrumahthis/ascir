@@ -14,11 +14,24 @@ describe("parseStartRun", () => {
   });
 
   it("rejects bad bodies without echoing them", () => {
-    for (const body of [undefined, null, [], "x", {}, { target: "" }, { target: 1 }, { target: "a".repeat(101) }, { target: "posts", dryRun: "yes" }]) {
+    for (const body of [
+      undefined,
+      null,
+      [],
+      "x",
+      {},
+      { target: "" },
+      { target: 1 },
+      { target: "a".repeat(101) },
+      { target: "posts", dryRun: "yes" },
+    ]) {
       const result = parseStartRun(body);
       expect(result.ok).toBe(false);
     }
-    const result = parseStartRun({ target: "secret-value", dryRun: "secret-value" });
+    const result = parseStartRun({
+      target: "secret-value",
+      dryRun: "secret-value",
+    });
     expect(JSON.stringify(result)).not.toContain("secret-value");
   });
 });
@@ -27,18 +40,37 @@ describe("parseCompleteRun", () => {
   it("defaults status to completed and report to null", () => {
     expect(parseCompleteRun({ counts: { created: 3, skipped: 0 } })).toEqual({
       ok: true,
-      value: { status: "completed", counts: { created: 3, skipped: 0 }, report: null },
+      value: {
+        status: "completed",
+        counts: { created: 3, skipped: 0 },
+        report: null,
+      },
     });
   });
 
   it("accepts a failed run with a report", () => {
     expect(
-      parseCompleteRun({ counts: {}, status: "failed", report: { error: "timeout" } }),
-    ).toMatchObject({ ok: true, value: { status: "failed", report: { error: "timeout" } } });
+      parseCompleteRun({
+        counts: {},
+        status: "failed",
+        report: { error: "timeout" },
+      }),
+    ).toMatchObject({
+      ok: true,
+      value: { status: "failed", report: { error: "timeout" } },
+    });
   });
 
   it("rejects bad counts and statuses", () => {
-    for (const body of [undefined, {}, { counts: [] }, { counts: { a: -1 } }, { counts: { a: 1.5 } }, { counts: { a: "1" } }, { counts: {}, status: "running" }]) {
+    for (const body of [
+      undefined,
+      {},
+      { counts: [] },
+      { counts: { a: -1 } },
+      { counts: { a: 1.5 } },
+      { counts: { a: "1" } },
+      { counts: {}, status: "running" },
+    ]) {
       expect(parseCompleteRun(body).ok).toBe(false);
     }
   });

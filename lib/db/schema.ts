@@ -77,7 +77,9 @@ export const ingestRuns = pgTable("ingest_run", {
   id: uuid("id").primaryKey().defaultRandom(),
   target: text("target").notNull(),
   dryRun: boolean("dry_run").notNull().default(false),
-  startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+  startedAt: timestamp("started_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   finishedAt: timestamp("finished_at", { withTimezone: true }),
   status: ingestRunStatus("status").notNull().default("running"),
   counts: jsonb("counts").$type<Record<string, number>>().notNull().default({}),

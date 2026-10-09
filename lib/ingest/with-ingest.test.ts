@@ -30,7 +30,13 @@ describe("withIngest", () => {
   it("returns 401 without a matching Bearer token", async () => {
     vi.stubEnv("INGEST_ENABLED", "true");
     vi.stubEnv("INGEST_TOKEN", TOKEN);
-    for (const header of [undefined, TOKEN, `Basic ${TOKEN}`, "Bearer wrong", `Bearer ${TOKEN}x`]) {
+    for (const header of [
+      undefined,
+      TOKEN,
+      `Basic ${TOKEN}`,
+      "Bearer wrong",
+      `Bearer ${TOKEN}x`,
+    ]) {
       expect((await call(header)).status).toBe(401);
     }
     expect(ok).not.toHaveBeenCalled();

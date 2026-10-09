@@ -12,7 +12,10 @@ function digest(value: string) {
 }
 
 // Hashing first gives equal-length buffers, so the compare leaks no length.
-export function tokenMatches(header: string | null, expected: string | undefined) {
+export function tokenMatches(
+  header: string | null,
+  expected: string | undefined,
+) {
   if (!header || !expected) return false;
   const match = /^Bearer (.+)$/.exec(header);
   if (!match) return false;
@@ -24,7 +27,12 @@ export function withIngest<C>(handler: Handler<C>): Handler<C> {
     if (process.env.INGEST_ENABLED !== "true") {
       return new Response(null, { status: 404 });
     }
-    if (!tokenMatches(request.headers.get("authorization"), process.env.INGEST_TOKEN)) {
+    if (
+      !tokenMatches(
+        request.headers.get("authorization"),
+        process.env.INGEST_TOKEN,
+      )
+    ) {
       return Response.json({ error: "unauthorized" }, { status: 401 });
     }
     return handler(request, context);
