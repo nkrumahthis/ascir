@@ -173,7 +173,13 @@ export default function Home() {
       <main className="ascir-home" id="main-content">
         <header className="site-nav" id="top">
           <a className="site-logo" href="#top" aria-label="ASCIR home">
-            <Image src="/ascir/logo.png" alt="ASCIR logo" width={220} height={115} priority />
+            <Image
+              src="/ascir/logo.png"
+              alt="ASCIR logo"
+              width={220}
+              height={115}
+              priority
+            />
           </a>
 
           <nav aria-label="Primary navigation">
@@ -201,14 +207,17 @@ export default function Home() {
 
         <section className="hero" aria-labelledby="hero-heading">
           <div className="hero-copy">
-            <p className="eyebrow">Afro-Sino Centre of International Relations</p>
+            <p className="eyebrow">
+              Afro-Sino Centre of International Relations
+            </p>
             <h1 id="hero-heading">
-              Independent China-Africa policy research and analysis from Accra, Ghana.
+              Independent China-Africa policy research and analysis from Accra,
+              Ghana.
             </h1>
             <p>
-              ASCIR is an African think tank and research hub advancing serious scholarship,
-              public engagement, and cross-regional partnerships around Africa-China relations
-              and wider South-South cooperation.
+              ASCIR is an African think tank and research hub advancing serious
+              scholarship, public engagement, and cross-regional partnerships
+              around Africa-China relations and wider South-South cooperation.
             </p>
 
             <div className="hero-actions" aria-label="Hero actions">
@@ -221,18 +230,27 @@ export default function Home() {
             </div>
           </div>
 
-          <ArticleBlock article={featuredArticle} className="hero-publication" />
+          <ArticleBlock
+            article={featuredArticle}
+            className="hero-publication"
+          />
         </section>
 
         <RecentArticlesSlider articles={recentArticles} />
 
-        <section className="news-section" id="news" aria-labelledby="news-heading">
+        <section
+          className="news-section"
+          id="news"
+          aria-labelledby="news-heading"
+        >
           <div className="section-heading">
             <p className="eyebrow">News</p>
-            <h2 id="news-heading">Research, events, and institutional updates.</h2>
+            <h2 id="news-heading">
+              Research, events, and institutional updates.
+            </h2>
             <p className="section-intro">
-              Follow ASCIR&apos;s latest analysis, convenings, and organisational updates across
-              Africa-China scholarship.
+              Follow ASCIR&apos;s latest analysis, convenings, and
+              organisational updates across Africa-China scholarship.
             </p>
           </div>
 
@@ -246,23 +264,36 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="text-section" id="mandate" aria-labelledby="mandate-heading">
+        <section
+          className="text-section"
+          id="mandate"
+          aria-labelledby="mandate-heading"
+        >
           <p className="eyebrow">The Mandate</p>
-          <h2 id="mandate-heading">Evidence-led research for policy and public understanding.</h2>
+          <h2 id="mandate-heading">
+            Evidence-led research for policy and public understanding.
+          </h2>
           <p>
-            ASCIR serves as a research hub grounded in African perspectives, producing analysis
-            that improves understanding of Africa-China engagement while building durable
-            partnerships across institutions, scholars, and practitioners.
+            ASCIR serves as a research hub grounded in African perspectives,
+            producing analysis that improves understanding of Africa-China
+            engagement while building durable partnerships across institutions,
+            scholars, and practitioners.
           </p>
         </section>
 
-        <section className="services-section" id="services" aria-labelledby="services-heading">
+        <section
+          className="services-section"
+          id="services"
+          aria-labelledby="services-heading"
+        >
           <div className="section-heading">
             <p className="eyebrow">What we do</p>
-            <h2 id="services-heading">How ASCIR delivers institutional value.</h2>
+            <h2 id="services-heading">
+              How ASCIR delivers institutional value.
+            </h2>
             <p className="section-intro">
-              Our work spans research production, public conversation, and strategic advisory
-              support for decision-makers.
+              Our work spans research production, public conversation, and
+              strategic advisory support for decision-makers.
             </p>
           </div>
 
@@ -279,29 +310,39 @@ export default function Home() {
         <section className="team-row" id="team" aria-labelledby="team-heading">
           <div className="team-copy">
             <p className="eyebrow">Team</p>
-            <h2 id="team-heading">Meet the scholars and practitioners behind ASCIR.</h2>
+            <h2 id="team-heading">
+              Meet the scholars and practitioners behind ASCIR.
+            </h2>
             <a href="#contact">View team and network</a>
           </div>
 
           <ul className="team-bubbles" aria-label="ASCIR team">
-            {teamMembers.map((member) => member.image && (
-              <li className="team-bubble" key={member.name}>
-                <Image
-                  src={member.image}
-                  alt={member.name}
-                  width={120}
-                  height={120}
-                  sizes="(max-width: 700px) 82px, 120px"
-                />
-              </li>
-            ))}
+            {teamMembers.map(
+              (member) =>
+                member.image && (
+                  <li className="team-bubble" key={member.name}>
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      width={120}
+                      height={120}
+                      sizes="(max-width: 700px) 82px, 120px"
+                    />
+                  </li>
+                ),
+            )}
           </ul>
         </section>
 
         <footer className="site-footer" id="contact">
           <div className="footer-col footer-brand">
             <a className="footer-logo" href="#top" aria-label="ASCIR home">
-              <Image src="/ascir/logo.png" alt="ASCIR logo" width={176} height={92} />
+              <Image
+                src="/ascir/logo.png"
+                alt="ASCIR logo"
+                width={176}
+                height={92}
+              />
             </a>
             <div className="footer-legal" aria-label="Legal links">
               <a href="#top">Terms and Conditions</a>

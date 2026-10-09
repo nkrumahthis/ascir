@@ -14,7 +14,9 @@ function humanizeSlug(slug: string): string {
     .join(" ");
 }
 
-export async function generateMetadata({ params }: NewsArticlePageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: NewsArticlePageProps): Promise<Metadata> {
   const { slug } = await params;
   const title = humanizeSlug(slug);
 
@@ -24,7 +26,9 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
   };
 }
 
-export default async function NewsArticlePage({ params }: NewsArticlePageProps) {
+export default async function NewsArticlePage({
+  params,
+}: NewsArticlePageProps) {
   const { slug } = await params;
   const title = humanizeSlug(slug);
 

@@ -29,7 +29,9 @@ export const posts = pgTable("posts", {
   content: text("content").notNull(),
   excerpt: text("excerpt").notNull().default(""),
   featuredImage: text("featured_image"),
-  publishedAt: timestamp("published_at", { withTimezone: true }).notNull().defaultNow(),
+  publishedAt: timestamp("published_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   type: postType("type").notNull(),
 });
 

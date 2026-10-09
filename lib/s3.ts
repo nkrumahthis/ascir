@@ -22,16 +22,42 @@ export const s3 = new S3Client({
   responseChecksumValidation: "WHEN_REQUIRED",
 });
 
-export const publicUrl = (key: string) => `https://${bucket}.${new URL(endpoint).host}/${key}`;
+export const publicUrl = (key: string) =>
+  `https://${bucket}.${new URL(endpoint).host}/${key}`;
 
-export const uploadObject = (key: string, body: Buffer | Uint8Array | string, contentType?: string) =>
-  s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: contentType }));
+export const uploadObject = (
+  key: string,
+  body: Buffer | Uint8Array | string,
+  contentType?: string,
+) =>
+  s3.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    }),
+  );
 
 export const deleteObject = (key: string) =>
   s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
 
-export const getUploadUrl = (key: string, contentType: string, expiresIn = 300) =>
-  getSignedUrl(s3, new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: contentType }), { expiresIn });
+export const getUploadUrl = (
+  key: string,
+  contentType: string,
+  expiresIn = 300,
+) =>
+  getSignedUrl(
+    s3,
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      ContentType: contentType,
+    }),
+    { expiresIn },
+  );
 
 export const getDownloadUrl = (key: string, expiresIn = 3600) =>
-  getSignedUrl(s3, new GetObjectCommand({ Bucket: bucket, Key: key }), { expiresIn });
+  getSignedUrl(s3, new GetObjectCommand({ Bucket: bucket, Key: key }), {
+    expiresIn,
+  });

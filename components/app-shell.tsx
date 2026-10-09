@@ -274,7 +274,10 @@ export function AppShell({
               orientation="vertical"
               className="mr-2 hidden data-vertical:h-4 data-vertical:self-center md:block"
             />
-            <Link href="/dashboard" className="flex items-center gap-2 md:hidden">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 md:hidden"
+            >
               <BrandMark />
               <span className="font-semibold">ASCIR</span>
             </Link>

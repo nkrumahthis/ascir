@@ -9,7 +9,13 @@ export default function SignInPage() {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <Link href="/" aria-label="ASCIR home">
-            <Image src="/ascir/logo.png" alt="ASCIR logo" width={120} height={63} priority />
+            <Image
+              src="/ascir/logo.png"
+              alt="ASCIR logo"
+              width={120}
+              height={63}
+              priority
+            />
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
@@ -32,7 +38,8 @@ export default function SignInPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0b3f32]/90 via-[#0b3f32]/20 to-transparent" />
         <p className="absolute inset-x-10 bottom-10 max-w-md font-heading text-2xl leading-snug text-white">
-          Independent China–Africa policy research and analysis from Accra, Ghana.
+          Independent China–Africa policy research and analysis from Accra,
+          Ghana.
         </p>
       </div>
     </div>
