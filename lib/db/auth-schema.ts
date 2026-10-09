@@ -1,66 +1,106 @@
-import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+// Better Auth tables. Constraint and index names match the tables Better
+// Auth created before Drizzle, so the baseline migration is a no-op there.
 
-// Better Auth core tables. Column names match Better Auth's defaults so
-// tables created by its own migrate command line up with this schema.
+import { sql } from "drizzle-orm";
+import {
+  boolean,
+  check,
+  foreignKey,
+  index,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+} from "drizzle-orm/pg-core";
+// Relative import: drizzle-kit does not resolve the @/ alias.
+import { DEFAULT_ROLE, ROLES } from "../../auth/can";
 
-export const user = pgTable("user", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: boolean("emailVerified").notNull().default(false),
-  image: text("image"),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
-  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
-});
+const createdAt = () =>
+  timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull();
+
+export const user = pgTable(
+  "user",
+  {
+    id: text().primaryKey(),
+    name: text().notNull(),
+    email: text().notNull(),
+    emailVerified: boolean().notNull(),
+    image: text(),
+    // One of ROLES in auth/can.ts. Only change it through can().
+    role: text().default(DEFAULT_ROLE).notNull(),
+    createdAt: createdAt(),
+    updatedAt: createdAt(),
+  },
+  (table) => [
+    unique("user_email_key").on(table.email),
+    check(
+      "user_role_check",
+      sql`${table.role} IN (${sql.raw(ROLES.map((r) => `'${r}'`).join(", "))})`,
+    ),
+  ],
+);
 
 export const session = pgTable(
   "session",
   {
-    id: text("id").primaryKey(),
-    expiresAt: timestamp("expiresAt").notNull(),
-    token: text("token").notNull().unique(),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
-    updatedAt: timestamp("updatedAt").notNull(),
-    ipAddress: text("ipAddress"),
-    userAgent: text("userAgent"),
-    userId: text("userId")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+    id: text().primaryKey(),
+    expiresAt: timestamp({ withTimezone: true }).notNull(),
+    token: text().notNull(),
+    createdAt: createdAt(),
+    updatedAt: timestamp({ withTimezone: true }).notNull(),
+    ipAddress: text(),
+    userAgent: text(),
+    userId: text().notNull(),
   },
-  (t) => [index("session_userId_idx").on(t.userId)],
+  (table) => [
+    index("session_userId_idx").on(table.userId),
+    foreignKey({
+      name: "session_userId_fkey",
+      columns: [table.userId],
+      foreignColumns: [user.id],
+    }).onDelete("cascade"),
+    unique("session_token_key").on(table.token),
+  ],
 );
 
 export const account = pgTable(
   "account",
   {
-    id: text("id").primaryKey(),
-    accountId: text("accountId").notNull(),
-    providerId: text("providerId").notNull(),
-    userId: text("userId")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    accessToken: text("accessToken"),
-    refreshToken: text("refreshToken"),
-    idToken: text("idToken"),
-    accessTokenExpiresAt: timestamp("accessTokenExpiresAt"),
-    refreshTokenExpiresAt: timestamp("refreshTokenExpiresAt"),
-    scope: text("scope"),
-    password: text("password"),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
-    updatedAt: timestamp("updatedAt").notNull(),
+    id: text().primaryKey(),
+    accountId: text().notNull(),
+    providerId: text().notNull(),
+    userId: text().notNull(),
+    accessToken: text(),
+    refreshToken: text(),
+    idToken: text(),
+    accessTokenExpiresAt: timestamp({ withTimezone: true }),
+    refreshTokenExpiresAt: timestamp({ withTimezone: true }),
+    scope: text(),
+    password: text(),
+    createdAt: createdAt(),
+    updatedAt: timestamp({ withTimezone: true }).notNull(),
   },
-  (t) => [index("account_userId_idx").on(t.userId)],
+  (table) => [
+    index("account_userId_idx").on(table.userId),
+    foreignKey({
+      name: "account_userId_fkey",
+      columns: [table.userId],
+      foreignColumns: [user.id],
+    }).onDelete("cascade"),
+  ],
 );
 
 export const verification = pgTable(
   "verification",
   {
-    id: text("id").primaryKey(),
-    identifier: text("identifier").notNull(),
-    value: text("value").notNull(),
-    expiresAt: timestamp("expiresAt").notNull(),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
-    updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+    id: text().primaryKey(),
+    identifier: text().notNull(),
+    value: text().notNull(),
+    expiresAt: timestamp({ withTimezone: true }).notNull(),
+    createdAt: createdAt(),
+    updatedAt: createdAt(),
   },
-  (t) => [index("verification_identifier_idx").on(t.identifier)],
+  (table) => [index("verification_identifier_idx").on(table.identifier)],
 );

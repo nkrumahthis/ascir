@@ -3,21 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  CalendarDays,
-  ChevronRight,
-  ChevronsUpDown,
-  FileText,
-  Globe2,
-  HelpCircle,
-  LayoutDashboard,
-  LogOut,
-  Newspaper,
-  Settings,
-  User,
-  Users,
-} from "lucide-react";
+import { ChevronRight, ChevronsUpDown, LogOut, User } from "lucide-react";
 
+import type { CanUser } from "@/auth/can";
+import { visibleNav, type NavItem } from "@/components/nav";
 import { signOut } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -65,59 +54,11 @@ import {
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-type NavItem = {
-  label: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  href: string;
-  children?: Omit<NavItem, "icon" | "children">[];
-};
-
-type NavGroup = {
-  title: string;
-  items: NavItem[];
-};
-
-export type ShellUser = {
+export type ShellUser = CanUser & {
   name: string;
   email: string;
   image?: string | null;
 };
-
-// Sections other than Dashboard are placeholders until their pages exist.
-const navGroups: NavGroup[] = [
-  {
-    title: "Overview",
-    items: [{ label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" }],
-  },
-  {
-    title: "Content",
-    items: [
-      {
-        label: "Articles",
-        icon: Newspaper,
-        href: "#",
-        children: [
-          { label: "Published", href: "#" },
-          { label: "Drafts", href: "#" },
-        ],
-      },
-      { label: "Research", icon: FileText, href: "#" },
-      { label: "Events", icon: CalendarDays, href: "#" },
-    ],
-  },
-  {
-    title: "Centre",
-    items: [
-      { label: "Team", icon: Users, href: "#" },
-      { label: "View website", icon: Globe2, href: "/" },
-    ],
-  },
-];
-
-const footerItems: NavItem[] = [
-  { label: "Help", icon: HelpCircle, href: "#" },
-  { label: "Settings", icon: Settings, href: "#" },
-];
 
 function initials(name: string) {
   return name
@@ -275,6 +216,7 @@ function NavUser({ user }: { user: ShellUser }) {
 
 function AppSidebar({ user }: { user: ShellUser }) {
   const pathname = usePathname();
+  const { groups, footer } = visibleNav(user);
 
   return (
     <Sidebar>
@@ -283,7 +225,7 @@ function AppSidebar({ user }: { user: ShellUser }) {
       </SidebarHeader>
       <SidebarContent className="overflow-hidden">
         <ScrollArea className="min-h-0 flex-1">
-          {navGroups.map((group) => (
+          {groups.map((group) => (
             <SidebarGroup key={group.title}>
               <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
               <SidebarGroupContent>
@@ -303,7 +245,7 @@ function AppSidebar({ user }: { user: ShellUser }) {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          {footerItems.map((item) => (
+          {footer.map((item) => (
             <NavMenuItem key={item.label} item={item} pathname={pathname} />
           ))}
         </SidebarMenu>
