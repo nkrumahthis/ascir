@@ -3,6 +3,7 @@
 You are the coding agent on the ASCIR migration, from ascir.org (WordPress) to a Next.js site on Vercel. Nkrumah reviews every PR and sets up anything high risk. Work from the ticket you are given (T01 to T28 on the migration board). Stack: Next.js 16 (App Router, `proxy.ts`), TypeScript, Tailwind v4 with shadcn/ui, Postgres with Drizzle (postgres-js driver), Better Auth with the Drizzle adapter, Zod, TipTap JSON for article bodies, Hetzner Object Storage over the S3 API for files (`lib/s3.ts`).
 
 ## Where things live
+
 - `app/`: routes. `app/api/ingest/` is the temporary ascir.org ingest API.
 - `auth/can.ts`: roles and the single `can()` check. `auth/find-unguarded.test.ts` fails the suite if a server action or route handler skips `can()` (or a guard wrapper such as `withIngest`).
 - `lib/auth.ts`, `lib/auth-client.ts`: Better Auth. `lib/db/`: Drizzle client and schema. `drizzle/`: committed migrations.
@@ -10,6 +11,7 @@ You are the coding agent on the ASCIR migration, from ascir.org (WordPress) to a
 - `components/ui/`: shadcn CLI output only. `legacy/`: the WordPress backup. Read it, never edit it.
 
 ## How to work
+
 - One ticket per PR. Branch name `feat/tNN-short-name` (e.g. `feat/t07-ingest-auth-runs`). PR title "TNN: ticket name". The board links PRs by the TNN in the title or branch.
 - Do only what the ticket's "Done when" asks. No drive-by refactors, renames or formatting sweeps in files the ticket does not need.
 - Keep PRs small enough to review in one sitting. If a change goes past about 400 lines (not counting generated files and migration SQL), stop and split it into smaller PRs under the same ticket, and say so.
@@ -20,12 +22,15 @@ You are the coding agent on the ASCIR migration, from ascir.org (WordPress) to a
 - If you notice a bug or risk outside the ticket, list it in the PR description. Do not fix it in the same PR.
 
 ## Commits
+
 - Subject in the imperative, under about 60 characters, no trailing full stop ("Add roles and a single can() permission check"). The ticket's main commit may use the PR title ("T07: Ingest auth and runs").
 - Body in plain prose: what changed and why, wrapped at about 72 characters. Mention anything a reviewer would not guess from the diff.
 - One logical change per commit. Do not mix a migration, a refactor and a feature in one commit.
 
 ## Pull request description
+
 Use this order. Keep it short and plain.
+
 1. What changed and why, in two or three sentences.
 2. Setup needed from Nkrumah, if any (exact env var names, which service). Otherwise "None".
 3. How to check it: the exact commands to run, and what he should see.
@@ -34,6 +39,7 @@ Use this order. Keep it short and plain.
 6. Anything you were unsure about, or chose between.
 
 ## Hands off (Nkrumah does these himself)
+
 - Create, change or rotate secrets, tokens, env vars, DNS, domains, or settings in the database host, Vercel, object storage, the sign-in provider or CI. Add every new variable to `.env.example` with a comment, and name it under "Setup needed" in the PR. Never commit a real value, and never read or print `.env.local`.
 - Run anything against production: no production database, no `--target=production`, no production ingest calls. Local and preview only.
 - Anything that deletes data, drops or renames a column or table, or rewrites existing rows. Stop and ask first. Do not run `npm run db:push` against a shared database; use generated migrations.
@@ -43,6 +49,7 @@ Use this order. Keep it short and plain.
 - Change auth, roles or `can()` rules beyond what the ticket describes.
 
 ## TypeScript style
+
 - strict mode on. No `any`, no `@ts-ignore`, no non-null assertion (`!`). Use `unknown` and narrow it. If a type error cannot be fixed cleanly, ask.
 - Validate every boundary with Zod: request bodies, WordPress JSON, CSV rows, env vars. Get types from `z.infer`. One schema per record type, reused for the API, the ETL and the schema export.
 - Read environment variables only through one validated env module.
@@ -63,32 +70,38 @@ Use this order. Keep it short and plain.
 - Style with Tailwind and the theme tokens (CSS variables in `app/globals.css`). No hard-coded colours, no inline styles. Check every screen in light and dark.
 - Forms use the shadcn form components and reuse the Zod schema for the same record. Do not add another UI or component library.
 - Auth: use Better Auth. Never write your own password hashing, tokens or sessions. All session reads and permission checks go through one auth module and the `can()` helper, never ad hoc inside components.
+- Formatting is Prettier with its defaults (`.prettierrc.json` is empty on purpose). Run `npm run format` before every commit and do not hand-format around it. Do not change the Prettier config, add plugins or add `prettier-ignore` comments without asking. `.prettierignore` keeps it out of `legacy/`, `drizzle/` (applied migrations) and `components/ui/` (shadcn CLI output). Format only the files your ticket touches if a full run would change others; list those under risks.
 - Naming: camelCase for values and functions, PascalCase for components and types, kebab-case for files, snake_case for database columns.
 
 ## Before opening a PR
+
 Run these and paste the result summary in the PR:
 
 ```bash
+npm run format
 npm run lint
 npx tsc --noEmit
 npm test
 npm run build
 ```
 
-No lint-disable comments without a reason beside them. All four must pass; if one fails for a reason outside the ticket, say so in the PR rather than fixing it.
+No lint-disable comments without a reason beside them. All of them must pass, and `npm run format:check` must be clean; if one fails for a reason outside the ticket, say so in the PR rather than fixing it.
 
 ## Known gaps (do not fix unless the ticket asks)
+
 The rules above describe where the code is going. Some of it is not there yet:
+
 - Zod is not installed. `lib/ingest/runs.ts` parses by hand. The first ticket that needs Zod adds it (with the reason in the PR) and moves those parsers onto it.
 - There is no validated env module yet. `lib/s3.ts`, `lib/db/index.ts` and `drizzle.config.ts` read `process.env` directly, with `!` in places. Do not copy that pattern into new code; list it as a risk if your ticket touches those files.
-- No formatter (Prettier) is set up. Match the surrounding code (2 spaces, double quotes, semicolons) and do not add one unasked.
 
 ## Python style (only for a one-off script, and only if the ticket allows it)
+
 - Type hints on every function. Run ruff and its formatter before the PR.
 - Use pathlib and the csv or json modules. No bare except. Put the entry point under `if __name__ == "__main__"`.
 - The ETL itself stays in TypeScript.
 
 ## Tests
+
 - Use Vitest. Put a test beside the file it tests (`runs.ts` → `runs.test.ts`). Transform and ingest logic must have tests.
 - Test with fixtures saved from real posts (3741, 2967, 3261, 2731) in `etl/fixtures`. Tests never call ascir.org or any network.
 - Every ingest and ETL ticket includes an idempotency test: run the same input twice, and the second run creates 0 and updates 0.
@@ -96,11 +109,13 @@ The rules above describe where the code is going. Some of it is not there yet:
 - Test the unhappy paths too: bad bodies, missing auth, and that error output does not contain the secret or the input.
 
 ## Content rules for the ETL
+
 - Never edit the authors' words. Typos in the original stay. Only fix the packaging (HTML entities, tags, bylines).
 - When the ETL is not sure (a source link to the wrong article, an image with no alt text), it flags the item for a person. It does not guess.
 - Every record carries a ref such as `wp:post:3741`. Never invent or change a ref.
 - The ETL never connects to the database. It writes dumps locally, then pushes through the ingest API. Always run the dry run before a push.
 
 ## Writing (PRs, comments, commit messages, UI copy)
+
 - Plain, short sentences. Say what happened and what to do, not how hard it was.
 - No marketing words, no emoji, no filler ("robust", "seamless", "leverage").
