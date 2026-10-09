@@ -42,3 +42,7 @@ yarn-error.log*
 next-env.d.ts
 
 legacy/
+# ETL working files (raw ascir.org data, dumps, run reports)
+/etl/raw/
+/etl/dumps/
+/etl/reports/
