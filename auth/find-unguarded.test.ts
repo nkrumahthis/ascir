@@ -70,6 +70,17 @@ describe("findUnguarded", () => {
     ]);
   });
 
+  it("treats route handlers wrapped in withIngest() as guarded", () => {
+    const code = `
+      export const POST = withIngest(async () => new Response());
+      const GET = withIngest(async () => new Response());
+      export { GET };
+      export const PUT = somethingElse(async () => new Response());`;
+    expect(findUnguarded("app/x/route.ts", code).map((u) => u.name)).toEqual([
+      "PUT",
+    ]);
+  });
+
   it("flags inline server actions that skip can()", () => {
     const code = `
       export default function Page() {
