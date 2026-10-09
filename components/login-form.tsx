@@ -1,54 +1,54 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { signIn, signUp } from "@/lib/auth-client"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { signIn, signUp } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const router = useRouter()
-  const next = useSearchParams().get("next") ?? "/dashboard"
-  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in")
-  const [error, setError] = useState<string | null>(null)
-  const [pending, setPending] = useState(false)
-  const isSignIn = mode === "sign-in"
+  const router = useRouter();
+  const next = useSearchParams().get("next") ?? "/dashboard";
+  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const isSignIn = mode === "sign-in";
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setError(null)
-    setPending(true)
-    const form = new FormData(e.currentTarget)
-    const email = String(form.get("email"))
-    const password = String(form.get("password"))
+    e.preventDefault();
+    setError(null);
+    setPending(true);
+    const form = new FormData(e.currentTarget);
+    const email = String(form.get("email"));
+    const password = String(form.get("password"));
 
     const { error } = isSignIn
       ? await signIn.email({ email, password })
-      : await signUp.email({ email, password, name: String(form.get("name")) })
+      : await signUp.email({ email, password, name: String(form.get("name")) });
 
     if (error) {
-      setPending(false)
-      setError(error.message ?? "Something went wrong")
-      return
+      setPending(false);
+      setError(error.message ?? "Something went wrong");
+      return;
     }
-    router.push(next)
-    router.refresh()
+    router.push(next);
+    router.refresh();
   }
 
   function toggleMode() {
-    setError(null)
-    setMode(isSignIn ? "sign-up" : "sign-in")
+    setError(null);
+    setMode(isSignIn ? "sign-up" : "sign-in");
   }
 
   return (
@@ -117,5 +117,5 @@ export function LoginForm({
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }

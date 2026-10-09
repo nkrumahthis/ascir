@@ -16,7 +16,9 @@ import {
 import { DEFAULT_ROLE, ROLES } from "../../auth/can";
 
 const createdAt = () =>
-  timestamp({ withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull();
+  timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull();
 
 export const user = pgTable(
   "user",

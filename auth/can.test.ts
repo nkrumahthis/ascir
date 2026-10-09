@@ -26,32 +26,123 @@ type Case = {
 
 // Every role is checked against every row: roles not listed must be denied.
 const cases: Case[] = [
-  { name: "own account", action: "account:manage", resource: { userId: ME }, allowed: everyone },
-  { name: "someone else's account", action: "account:manage", resource: { userId: OTHER }, allowed: nobody },
-  { name: "account without resource", action: "account:manage", allowed: nobody },
+  {
+    name: "own account",
+    action: "account:manage",
+    resource: { userId: ME },
+    allowed: everyone,
+  },
+  {
+    name: "someone else's account",
+    action: "account:manage",
+    resource: { userId: OTHER },
+    allowed: nobody,
+  },
+  {
+    name: "account without resource",
+    action: "account:manage",
+    allowed: nobody,
+  },
 
   { name: "write a post", action: "post:create", allowed: authorUp },
 
-  { name: "edit own post", action: "post:update", resource: own, allowed: authorUp },
-  { name: "edit co-authored post", action: "post:update", resource: coAuthored, allowed: authorUp },
-  { name: "edit someone else's post", action: "post:update", resource: others, allowed: editorUp },
-  { name: "edit ASCIR-bylined post", action: "post:update", resource: ascir, allowed: editorUp },
-  { name: "edit post without resource", action: "post:update", allowed: editorUp },
+  {
+    name: "edit own post",
+    action: "post:update",
+    resource: own,
+    allowed: authorUp,
+  },
+  {
+    name: "edit co-authored post",
+    action: "post:update",
+    resource: coAuthored,
+    allowed: authorUp,
+  },
+  {
+    name: "edit someone else's post",
+    action: "post:update",
+    resource: others,
+    allowed: editorUp,
+  },
+  {
+    name: "edit ASCIR-bylined post",
+    action: "post:update",
+    resource: ascir,
+    allowed: editorUp,
+  },
+  {
+    name: "edit post without resource",
+    action: "post:update",
+    allowed: editorUp,
+  },
 
-  { name: "publish own post", action: "post:publish", resource: own, allowed: authorUp },
-  { name: "publish someone else's post", action: "post:publish", resource: others, allowed: editorUp },
-  { name: "publish ASCIR-bylined post", action: "post:publish", resource: ascir, allowed: editorUp },
-  { name: "publish post without resource", action: "post:publish", allowed: editorUp },
+  {
+    name: "publish own post",
+    action: "post:publish",
+    resource: own,
+    allowed: authorUp,
+  },
+  {
+    name: "publish someone else's post",
+    action: "post:publish",
+    resource: others,
+    allowed: editorUp,
+  },
+  {
+    name: "publish ASCIR-bylined post",
+    action: "post:publish",
+    resource: ascir,
+    allowed: editorUp,
+  },
+  {
+    name: "publish post without resource",
+    action: "post:publish",
+    allowed: editorUp,
+  },
 
-  { name: "delete own post", action: "post:delete", resource: own, allowed: adminUp },
-  { name: "delete someone else's post", action: "post:delete", resource: others, allowed: adminUp },
+  {
+    name: "delete own post",
+    action: "post:delete",
+    resource: own,
+    allowed: adminUp,
+  },
+  {
+    name: "delete someone else's post",
+    action: "post:delete",
+    resource: others,
+    allowed: adminUp,
+  },
 
   { name: "add a person", action: "person:create", allowed: editorUp },
-  { name: "edit own profile", action: "person:update", resource: { userId: ME }, allowed: authorUp },
-  { name: "edit someone else's profile", action: "person:update", resource: { userId: OTHER }, allowed: editorUp },
-  { name: "edit person with no login", action: "person:update", resource: { userId: null }, allowed: editorUp },
-  { name: "edit person without resource", action: "person:update", allowed: editorUp },
-  { name: "delete own profile", action: "person:delete", resource: { userId: ME }, allowed: adminUp },
+  {
+    name: "edit own profile",
+    action: "person:update",
+    resource: { userId: ME },
+    allowed: authorUp,
+  },
+  {
+    name: "edit someone else's profile",
+    action: "person:update",
+    resource: { userId: OTHER },
+    allowed: editorUp,
+  },
+  {
+    name: "edit person with no login",
+    action: "person:update",
+    resource: { userId: null },
+    allowed: editorUp,
+  },
+  {
+    name: "edit person without resource",
+    action: "person:update",
+    allowed: editorUp,
+  },
+  {
+    name: "delete own profile",
+    action: "person:delete",
+    resource: { userId: ME },
+    allowed: adminUp,
+  },
 
   { name: "add an event", action: "event:create", allowed: editorUp },
   { name: "edit an event", action: "event:update", allowed: editorUp },
@@ -64,14 +155,53 @@ const cases: Case[] = [
   { name: "invite a user", action: "user:invite", allowed: adminUp },
   { name: "change settings", action: "settings:update", allowed: adminUp },
 
-  { name: "promote subscriber to author", action: "user:set-role", resource: { from: "subscriber", to: "author" }, allowed: adminUp },
-  { name: "promote author to editor", action: "user:set-role", resource: { from: "author", to: "editor" }, allowed: adminUp },
-  { name: "demote editor to subscriber", action: "user:set-role", resource: { from: "editor", to: "subscriber" }, allowed: adminUp },
-  { name: "grant admin", action: "user:set-role", resource: { from: "editor", to: "admin" }, allowed: superOnly },
-  { name: "grant super admin", action: "user:set-role", resource: { from: "subscriber", to: "super_admin" }, allowed: superOnly },
-  { name: "demote an admin", action: "user:set-role", resource: { from: "admin", to: "editor" }, allowed: superOnly },
-  { name: "demote a super admin", action: "user:set-role", resource: { from: "super_admin", to: "admin" }, allowed: superOnly },
-  { name: "set role without resource", action: "user:set-role", allowed: superOnly },
+  {
+    name: "promote subscriber to author",
+    action: "user:set-role",
+    resource: { from: "subscriber", to: "author" },
+    allowed: adminUp,
+  },
+  {
+    name: "promote author to editor",
+    action: "user:set-role",
+    resource: { from: "author", to: "editor" },
+    allowed: adminUp,
+  },
+  {
+    name: "demote editor to subscriber",
+    action: "user:set-role",
+    resource: { from: "editor", to: "subscriber" },
+    allowed: adminUp,
+  },
+  {
+    name: "grant admin",
+    action: "user:set-role",
+    resource: { from: "editor", to: "admin" },
+    allowed: superOnly,
+  },
+  {
+    name: "grant super admin",
+    action: "user:set-role",
+    resource: { from: "subscriber", to: "super_admin" },
+    allowed: superOnly,
+  },
+  {
+    name: "demote an admin",
+    action: "user:set-role",
+    resource: { from: "admin", to: "editor" },
+    allowed: superOnly,
+  },
+  {
+    name: "demote a super admin",
+    action: "user:set-role",
+    resource: { from: "super_admin", to: "admin" },
+    allowed: superOnly,
+  },
+  {
+    name: "set role without resource",
+    action: "user:set-role",
+    allowed: superOnly,
+  },
 ];
 
 describe("can()", () => {
@@ -119,9 +249,44 @@ describe("sidebar", () => {
   it.each<[Role, string[]]>([
     ["subscriber", ["Dashboard", "View website", "Help"]],
     ["author", ["Dashboard", "Articles", "Research", "View website", "Help"]],
-    ["editor", ["Dashboard", "Articles", "Research", "Events", "Team", "View website", "Help"]],
-    ["admin", ["Dashboard", "Articles", "Research", "Events", "Team", "View website", "Help", "Settings"]],
-    ["super_admin", ["Dashboard", "Articles", "Research", "Events", "Team", "View website", "Help", "Settings"]],
+    [
+      "editor",
+      [
+        "Dashboard",
+        "Articles",
+        "Research",
+        "Events",
+        "Team",
+        "View website",
+        "Help",
+      ],
+    ],
+    [
+      "admin",
+      [
+        "Dashboard",
+        "Articles",
+        "Research",
+        "Events",
+        "Team",
+        "View website",
+        "Help",
+        "Settings",
+      ],
+    ],
+    [
+      "super_admin",
+      [
+        "Dashboard",
+        "Articles",
+        "Research",
+        "Events",
+        "Team",
+        "View website",
+        "Help",
+        "Settings",
+      ],
+    ],
   ])("%s sees only links their role can use", (role, expected) => {
     expect(labels(role)).toEqual(expected);
   });

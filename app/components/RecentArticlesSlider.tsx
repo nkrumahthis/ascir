@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, type KeyboardEventHandler, type TouchEventHandler } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type KeyboardEventHandler,
+  type TouchEventHandler,
+} from "react";
 import { ArticleBlock, type ArticleBlockData } from "./ArticleBlock";
 
 type RecentArticlesSliderProps = {
@@ -22,9 +28,7 @@ function getVisibleCount(width: number): number {
   return 4;
 }
 
-export function RecentArticlesSlider({
-  articles,
-}: RecentArticlesSliderProps) {
+export function RecentArticlesSlider({ articles }: RecentArticlesSliderProps) {
   const [visibleCount, setVisibleCount] = useState(4);
   const [index, setIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -92,7 +96,11 @@ export function RecentArticlesSlider({
   };
 
   return (
-    <section className="recent-section" id="recent" aria-label="Recent articles">
+    <section
+      className="recent-section"
+      id="recent"
+      aria-label="Recent articles"
+    >
       <div className="section-heading recent-header">
         <div>
           <p className="eyebrow">Recent articles</p>

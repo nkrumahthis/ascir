@@ -13,5 +13,7 @@ export default async function DashboardLayout({
 
   const { id, role, name, email, image } = session.user;
 
-  return <AppShell user={{ id, role, name, email, image }}>{children}</AppShell>;
+  return (
+    <AppShell user={{ id, role, name, email, image }}>{children}</AppShell>
+  );
 }

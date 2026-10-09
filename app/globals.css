@@ -563,12 +563,36 @@ button:focus-visible,
   background: #e8e7e3;
 }
 
-.team-bubble:nth-child(1) { top: 0; left: 120px; z-index: 4; }
-.team-bubble:nth-child(2) { top: 0; left: 240px; z-index: 3; }
-.team-bubble:nth-child(3) { top: 86px; left: 8px; z-index: 2; }
-.team-bubble:nth-child(4) { top: 88px; left: 128px; z-index: 5; }
-.team-bubble:nth-child(5) { top: 88px; left: 248px; z-index: 2; }
-.team-bubble:nth-child(6) { top: 172px; left: 128px; z-index: 4; }
+.team-bubble:nth-child(1) {
+  top: 0;
+  left: 120px;
+  z-index: 4;
+}
+.team-bubble:nth-child(2) {
+  top: 0;
+  left: 240px;
+  z-index: 3;
+}
+.team-bubble:nth-child(3) {
+  top: 86px;
+  left: 8px;
+  z-index: 2;
+}
+.team-bubble:nth-child(4) {
+  top: 88px;
+  left: 128px;
+  z-index: 5;
+}
+.team-bubble:nth-child(5) {
+  top: 88px;
+  left: 248px;
+  z-index: 2;
+}
+.team-bubble:nth-child(6) {
+  top: 172px;
+  left: 128px;
+  z-index: 4;
+}
 
 .team-bubble img {
   width: 100%;
@@ -578,7 +602,10 @@ button:focus-visible,
 
 .site-footer {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(240px, 1fr) minmax(260px, 1.2fr);
+  grid-template-columns: minmax(220px, 1fr) minmax(240px, 1fr) minmax(
+      260px,
+      1.2fr
+    );
   align-items: start;
   gap: 1.6rem;
   padding: 1.3rem 1.5rem;

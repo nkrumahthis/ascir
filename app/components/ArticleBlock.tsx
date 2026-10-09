@@ -83,7 +83,10 @@ export function ArticleBlock({
   const normalized = normalizeArticle(article);
 
   return (
-    <article className={`article-block ${className}`.trim()} aria-label={normalized.label}>
+    <article
+      className={`article-block ${className}`.trim()}
+      aria-label={normalized.label}
+    >
       {normalized.image ? (
         <div className="article-block-media">
           <Image
