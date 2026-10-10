@@ -1,9 +1,12 @@
 import { randomUUID } from "node:crypto";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import type { Fetch } from "@/etl/http";
 import { createIngestClient } from "@/etl/ingest-client";
 import { push, type Dump } from "@/etl/push";
-import { confirmTarget } from "@/etl/push-step";
+import { confirmTarget, report } from "@/etl/push-step";
 import type { DumpItem } from "@/etl/registry";
 
 const TOKEN = "s3cret-token";
@@ -183,4 +186,39 @@ describe("confirmTarget", () => {
       ).rejects.toThrow("Push cancelled.");
     },
   );
+});
+
+describe("report", () => {
+  async function runAndReport(items: DumpItem[]) {
+    const dir = await mkdtemp(join(tmpdir(), "etl-run-"));
+    try {
+      const { client } = fakeIngest();
+      const dumps = [dump("posts", items)];
+      await writeFile(join(dir, "posts.json"), JSON.stringify(items));
+      const result = await push(client, "local", dumps, { dryRunOnly: false });
+      vi.spyOn(console, "log").mockImplementation(() => {});
+      const outcome = await report(result, dumps, { dumps: dir, reports: dir })
+        .then(() => "ok")
+        .catch((error: unknown) => String(error));
+      const runId = (result.push ?? result.dryRun).runId;
+      const markdown = await readFile(join(dir, `${runId}.md`), "utf8");
+      return { outcome, markdown };
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  }
+
+  it("writes the report and succeeds when nothing failed", async () => {
+    const { outcome, markdown } = await runAndReport(posts(2));
+    expect(outcome).toBe("ok");
+    expect(markdown).toContain("| posts | 2 | 0 | 0 | 0 |");
+  });
+
+  it("writes the report and fails the command when an item failed", async () => {
+    const { outcome, markdown } = await runAndReport([
+      { ref: "wp:post:1", bad: true },
+    ]);
+    expect(outcome).toContain("Push stopped on errors");
+    expect(markdown).toContain("- `wp:post:1`: `bad ref`");
+  });
 });

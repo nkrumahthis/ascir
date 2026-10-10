@@ -1,13 +1,13 @@
 // Push: sends the dumps to the ingest API. A dry run goes first and the
 // real push only starts if it had no errors. Each pass is one ingest run.
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
 import { toBatches } from "@/etl/batches";
 import type { Target } from "@/etl/config";
 import type { Counts, IngestClient, ItemResult } from "@/etl/ingest-client";
-import { DUMPS_DIR, REPORTS_DIR } from "@/etl/paths";
+import { DUMPS_DIR } from "@/etl/paths";
 import type { DumpItem, RecordDefinition } from "@/etl/registry";
 
 export type Dump = { definition: RecordDefinition; items: DumpItem[] };
@@ -119,12 +119,4 @@ function finish(
   return client.completeRun(report.runId, status, counts, {
     errors: report.errors,
   });
-}
-
-export async function writeReport(report: PushReport, dir = REPORTS_DIR) {
-  await mkdir(dir, { recursive: true });
-  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const file = join(dir, `${stamp}-${report.target}.json`);
-  await writeFile(file, JSON.stringify(report, null, 2));
-  return file;
 }

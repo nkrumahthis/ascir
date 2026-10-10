@@ -1,12 +1,27 @@
 // The push step of the CLI: checks the target, asks before production,
-// pushes, prints a summary and saves the report to etl/reports.
+// pushes, then writes the run report and prints its summary.
 
 import { createInterface } from "node:readline/promises";
 import { loadIngestConfig, type Target } from "@/etl/config";
 import type { Flags } from "@/etl/flags";
 import { createIngestClient } from "@/etl/ingest-client";
-import { push, readDumps, writeReport, type PassReport } from "@/etl/push";
+import {
+  push,
+  readDumps,
+  type Dump,
+  type PassReport,
+  type PushReport,
+} from "@/etl/push";
 import { selectRecords } from "@/etl/registry";
+import {
+  countLines,
+  errorSection,
+  lastPass,
+  readKnownRefs,
+  renderReport,
+  runChecks,
+  writeRunReport,
+} from "@/etl/report";
 
 export type Ask = (question: string) => Promise<string>;
 
@@ -41,24 +56,37 @@ export async function runPush(flags: Flags, target: Target) {
   }
   const client = createIngestClient(await loadIngestConfig(target));
   const dumps = await readDumps(definitions);
-  const report = await push(client, target, dumps, {
+  const result = await push(client, target, dumps, {
     dryRunOnly: flags.dryRun,
   });
-  printPass(report.dryRun);
-  if (report.push) printPass(report.push);
-  console.log(`Report saved to ${await writeReport(report)}`);
-  if (report.dryRun.errors.length > 0 || report.push?.errors.length) {
+  await report(result, dumps);
+}
+
+// Writes etl/reports/<run id>.md, prints the summary and fails the command
+// (non-zero exit) when any item had an error.
+export async function report(
+  result: PushReport,
+  dumps: readonly Dump[],
+  dirs: { dumps?: string; reports?: string } = {},
+) {
+  const knownRefs = await readKnownRefs(dirs.dumps);
+  const checks = runChecks({ pushed: dumps, knownRefs });
+  const sections = [errorSection(result), ...checks];
+  const markdown = renderReport(result, sections, new Date());
+  const pass = lastPass(result);
+  const file = await writeRunReport(markdown, pass.runId, dirs.reports);
+
+  printPass(pass);
+  for (const section of sections) {
+    console.log(`  ${section.title}: ${section.findings.length}`);
+  }
+  console.log(`Report saved to ${file}`);
+  if (pass.errors.length > 0) {
     throw new Error("Push stopped on errors; see the report.");
   }
 }
 
 function printPass(pass: PassReport) {
   console.log(`${pass.dryRun ? "Dry run" : "Push"} (run ${pass.runId}):`);
-  for (const [type, c] of Object.entries(pass.counts)) {
-    console.log(
-      `  ${type}: ${c.created} created, ${c.updated} updated, ` +
-        `${c.unchanged} unchanged, ${c.error} errors`,
-    );
-  }
-  for (const e of pass.errors) console.log(`  ${e.type} ${e.ref}: ${e.error}`);
+  for (const line of countLines(pass)) console.log(`  ${line}`);
 }
